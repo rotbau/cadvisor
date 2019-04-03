@@ -1,0 +1,48 @@
+# This creates the Replication Controller for the Web-Server
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nsx-demo
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nsx-demo
+        secgroup: web
+    spec:
+      containers:
+      - name: nsx-demo
+        image: yfauser/nsx-demo
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80     
+---
+# This creates the K8s Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsx-demo
+  labels:
+    app: nsx-demo
+spec:
+  ports:
+    # the port that this service should serve on
+    - port: 80
+  selector:
+    app: nsx-demo
+---
+# This creates the K8s Ingress Controller
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nsx-demo-ingress
+spec:
+  rules:
+  - host: nsx.apps.rtbsystems.lan
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: nsx-demo
+          servicePort: 80
