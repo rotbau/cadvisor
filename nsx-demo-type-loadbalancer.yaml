@@ -1,0 +1,37 @@
+# This creates the Replication Controller for the Web-Server
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nsx-demo
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nsx-demo
+        secgroup: web
+    spec:
+      containers:
+      - name: nsx-demo
+        image: yfauser/nsx-demo
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80     
+---
+# This creates the K8s Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsx-demo
+  labels:
+    app: mod2
+spec:
+  ports:
+    # the port that this service should serve on
+    - port: 80
+      targetPort: 80
+      protocol: tcp
+      name: nsx-demo
+  selector:
+    app: nsx-demo
+  type: LoadBalancer
